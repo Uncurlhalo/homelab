@@ -4,5 +4,4 @@ metadata:
   name: first-pool
 spec:
   blocks:
-    - start: 192.168.1.220
-      stop: 192.168.1.255
+    - cidr: "192.168.3.1/24"
