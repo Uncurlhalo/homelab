@@ -12,7 +12,7 @@ variable "volume" {
     name    = string
     node    = string
     size    = string
-    storage = optional(string, "local-zfs")
+    storage = optional(string, "zfs-vm-data")
     vmid    = optional(number, 9999)
     format  = optional(string, "raw")
   })
