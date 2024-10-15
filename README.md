@@ -6,9 +6,8 @@ Repository for home infrastructure and [Kubernetes](https://kubernetes.io/) clus
 using [GitOps](https://en.wikipedia.org/wiki/DevOps) practices.
 
 Held together using [Proxmox VE](https://www.proxmox.com/en/proxmox-virtual-environment),
-[OpenTofu](https://opentofu.org/), [Talos](https://talos.dev), [Kubernetes](https://kubernetes.io/),
-[Argo CD](https://argoproj.github.io/cd/) and copious amounts of [YAML](https://yaml.org/) with some help
-from [Renovate](https://www.mend.io/renovate/).
+[Terraform](https://www.terraform.io/), [Talos](https://talos.dev), [Kubernetes](https://kubernetes.io/),
+[Argo CD](https://argoproj.github.io/cd/) and copious amounts of [YAML](https://yaml.org/)
 
 </div>
 
@@ -17,40 +16,22 @@ from [Renovate](https://www.mend.io/renovate/).
 ## 📖 Overview
 
 This repository hosts the IaC ([Infrastructure as Code](https://en.wikipedia.org/wiki/Infrastructure_as_code))
-configuration for my homelab.
+configuration for my homelab kubernetes cluster. This project was inspired (and forked from) a project by [vehagn](https://github.com/vehagn).
+I have elected to remove some of his deployments as they are not relevant for my use case, but I am thankful for all the work he put into this project!
 
 The Homelab is backed by [Proxmox VE](https://www.proxmox.com/en/proxmox-virtual-environment) hypervisor nodes with VMs
-bootstrapped using [OpenTofu](https://opentofu.org/)/[Terraform](https://www.terraform.io/).
+bootstrapped using [Terraform](https://www.terraform.io/).
 
-Most of the services run on [Talos](https://www.talos.dev/) flavoured [Kubernetes](https://kubernetes.io/),
-though I'm also running a [TrueNAS](https://www.truenas.com/) VM for storage
-and [Home Assistant](https://www.home-assistant.io/) VM for home automation.
-
-To organise all the configuration I've opted for an approach using Kustomized Helm
-with [Argo CD](https://argoproj.github.io/cd/) which I've explained in more
-detail [in this article](https://blog.stonegarden.dev/articles/2023/09/argocd-kustomize-with-helm/).
-
-I journal my homelab journey over at my self-hosted [blog](https://blog.stonegarden.dev).
+Most of the services run on [Talos](https://www.talos.dev/) flavoured [Kubernetes](https://kubernetes.io/).
 
 ## 🧑‍💻 Getting Started
 
-If you're new to Kubernetes I've written a fairly thorough guide
-on [Bootstrapping k3s with Cilium](https://blog.stonegarden.dev/articles/2024/02/bootstrapping-k3s-with-cilium/).
-In the article I try to guide you from a fresh Debian 12 Bookworm install to a working cluster using
-the [k3s](https://k3s.io) flavour of Kubernetes with [Cilium](https://cilium.io) as a [CNI](https://www.cni.dev)
-and [IngressController](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/).
-
-I've also written an article on how to get started
-with [Kubernetes on Proxmox](https://blog.stonegarden.dev/articles/2024/03/proxmox-k8s-with-cilium/) if virtualisation
-is more your thing.
-
-The current iteration of my homelab runs on [Talos](https://talos.dev) Kubernetes and is set up according 
-to [this article](https://blog.stonegarden.dev/articles/2024/08/talos-proxmox-tofu/).
+Todo - Explain how to use this repo given my use case.
 
 ## ⚙️ Core Components
 
 * [Proxmox VE](https://www.proxmox.com/en/proxmox-virtual-environment): Server management and KVM hypervisor.
-* [OpenTofu](https://opentofu.org/): Open source infrastructure as code tool.
+* [Terraform](https://www.terraform.io/): Infrastructure as code tool.
 * [Cilium](https://cilium.io/): eBPF-based Networking, Observability, Security.
 * [Proxmox CSI Plugin](https://github.com/sergelogvinov/proxmox-csi-plugin): CSI driver for storage
 * [Argo CD](https://argo-cd.readthedocs.io/en/stable/): Declarative, GitOps continuous delivery tool for Kubernetes.
@@ -72,7 +53,6 @@ to [this article](https://blog.stonegarden.dev/articles/2024/08/talos-proxmox-to
 │   ├── 📂 infra           # Infrastructure components
 │   └── 📂 sets            # Bootstrapping ApplicationSets
 └── 📂 tofu                # Tofu configuration
-    ├── 📂 home-assistant  # Home Assistant VM
     └── 📂 kubernetes      # Kubernetes VM configuration
         ├── 📂 bootstrap   # Kubernetes bootstrap config
         └── 📂 talos       # Talos configuration 
@@ -80,25 +60,21 @@ to [this article](https://blog.stonegarden.dev/articles/2024/08/talos-proxmox-to
 
 ## 🖥️ Hardware
 
-| Name   | Device                    | CPU             | RAM            | Storage          | Purpose           |
-|--------|---------------------------|-----------------|----------------|------------------|-------------------|
-| Abel   | CWWK 6 LAN Port           | Intel i3-N305   | 32 GB DDR5     | -                | Control-plane     |
-| Euclid | ASUS ExpertCenter PN42    | Intel N100      | 32 GB DDR4     | -                | Control-plane     |
-| Cantor | ASUS PRIME N100I-D D4     | Intel N100      | 32 GB DDR4     | 5x8TB HDD RaidZ2 | NAS/Control-plane |
-| Gauss  | Dell Precision Tower 5810 | Xeon E5-1650 v3 | 64 GB DDR4 ECC | 14 TB HDD        | Compute           |
+| Name | Device                     | CPU                 | RAM         | Storage                            | Purpose          |
+|------|----------------------------|---------------------|-------------|------------------------------------|------------------|
+| neko | Dell R730 Rackmount Server | 2 x Xeon E5-2696 v3 | 128 GB DDR4 | 560GB Boot Disk                    | VM Host, Storage |
+|      |                            |                     |             | 3 x 4TB RaidZ1 pool (pve-zfs) 11TB |                  |
+|      |                            |                     |             | 4 x 10TB RaidZ1 pool (tank) 36.5TB |                  |
 
 ## 🏗️ Work in Progress
 
-- [ ] More lightweight auth (Authelia, Authentik, Zitadel, kanidm)
-- [ ] CNPG for databases
-- [ ] External DNS
+- [ ] Everything (I need to make the repo work for my infra)
 
 ## 👷‍ Future Projects
 
 - [ ] OPNSense/pfSense/OpenWRT
 - [ ] Implement LGTM-stack for monitoring
 - [ ] Use BGP instead of ARP in Cilium
-- [ ] Local LLM
 - [ ] Cilium mTLS & SPIFFE/SPIRE
 - [ ] Ceph for distributed storage
 - [ ] Dynamic Resource Allocation for GPU
