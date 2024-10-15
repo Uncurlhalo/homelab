@@ -13,7 +13,7 @@ variable "volumes" {
     object({
       node    = string
       size    = string
-      storage = optional(string, "zfs-vm-data ")
+      storage = optional(string, "zfs-vm-data")
       vmid    = optional(number, 9999)
       format  = optional(string, "raw")
     })
