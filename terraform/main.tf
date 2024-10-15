@@ -6,19 +6,19 @@ module "talos" {
   }
 
   image = {
-    version = "v1.8.1"
+    version        = "v1.8.1"
     update_version = "v1.8.1" # renovate: github-releases=siderolabs/talos
-    schematic = file("${path.module}/talos/image/schematic.yaml")
+    schematic      = file("${path.module}/talos/image/schematic.yaml")
   }
 
   cilium = {
-    values = file("${path.module}/../../k8s/infra/network/cilium/values.yaml")
+    values  = file("${path.module}/../k8s/infra/network/cilium/values.yaml")
     install = file("${path.module}/talos/inline-manifests/cilium-install.yaml")
   }
 
   cluster = {
     name            = "talos"
-    endpoint        = "192.168.1.102"
+    endpoint        = "192.168.2.100"
     gateway         = "192.168.1.1"
     talos_version   = "v1.8"
     proxmox_cluster = "homelab"
@@ -26,50 +26,66 @@ module "talos" {
 
   nodes = {
     "ctrl-00" = {
-      host_node     = "abel"
+      host_node     = "neko"
       machine_type  = "controlplane"
-      ip            = "192.168.1.100"
+      ip            = "192.168.2.100"
       mac_address   = "BC:24:11:2E:C8:00"
       vm_id         = 800
       cpu           = 8
-      ram_dedicated = 20480
-      igpu          = true
+      ram_dedicated = 8192
     }
     "ctrl-01" = {
-      host_node     = "euclid"
+      host_node     = "neko"
       machine_type  = "controlplane"
-      ip            = "192.168.1.101"
+      ip            = "192.168.2.101"
       mac_address   = "BC:24:11:2E:C8:01"
       vm_id         = 801
-      cpu           = 4
-      ram_dedicated = 20480
-      igpu          = true
+      cpu           = 8
+      ram_dedicated = 8192
     }
     "ctrl-02" = {
-      host_node     = "cantor"
+      host_node     = "neko"
       machine_type  = "controlplane"
-      ip            = "192.168.1.102"
+      ip            = "192.168.2.102"
       mac_address   = "BC:24:11:2E:C8:02"
       vm_id         = 802
-      cpu           = 4
-      ram_dedicated = 4096
+      cpu           = 8
+      ram_dedicated = 8192
     }
-    #    "work-00" = {
-    #      host_node     = "abel"
-    #      machine_type  = "worker"
-    #      ip            = "192.168.1.110"
-    #      mac_address   = "BC:24:11:2E:A8:00"
-    #      vm_id         = 810
-    #      cpu           = 8
-    #      ram_dedicated = 4096
-    #    }
+    "work-00" = {
+      host_node     = "neko"
+      machine_type  = "worker"
+      ip            = "192.168.2.200"
+      mac_address   = "BC:24:11:2E:A8:00"
+      vm_id         = 810
+      cpu           = 8
+      ram_dedicated = 8192
+    }
+    "work-01" = {
+      host_node     = "neko"
+      machine_type  = "worker"
+      ip            = "192.168.2.201"
+      mac_address   = "BC:24:11:2E:A8:01"
+      vm_id         = 811
+      cpu           = 8
+      ram_dedicated = 8192
+    }
+    "work-02" = {
+      host_node     = "neko"
+      machine_type  = "worker"
+      ip            = "192.168.2.202"
+      mac_address   = "BC:24:11:2E:A8:02"
+      vm_id         = 811
+      cpu           = 8
+      ram_dedicated = 8192
+    }
   }
 
 }
 
 module "sealed_secrets" {
   depends_on = [module.talos]
-  source = "./bootstrap/sealed-secrets"
+  source     = "./bootstrap/sealed-secrets"
 
   providers = {
     kubernetes = kubernetes
@@ -78,13 +94,13 @@ module "sealed_secrets" {
   // openssl req -x509 -days 365 -nodes -newkey rsa:4096 -keyout sealed-secrets.key -out sealed-secrets.cert -subj "/CN=sealed-secret/O=sealed-secret"
   cert = {
     cert = file("${path.module}/bootstrap/sealed-secrets/certificate/sealed-secrets.cert")
-    key = file("${path.module}/bootstrap/sealed-secrets/certificate/sealed-secrets.key")
+    key  = file("${path.module}/bootstrap/sealed-secrets/certificate/sealed-secrets.key")
   }
 }
 
 module "proxmox_csi_plugin" {
   depends_on = [module.talos]
-  source = "./bootstrap/proxmox-csi-plugin"
+  source     = "./bootstrap/proxmox-csi-plugin"
 
   providers = {
     proxmox    = proxmox
@@ -96,7 +112,7 @@ module "proxmox_csi_plugin" {
 
 module "volumes" {
   depends_on = [module.proxmox_csi_plugin]
-  source = "./bootstrap/volumes"
+  source     = "./bootstrap/volumes"
 
   providers = {
     restapi    = restapi
@@ -104,37 +120,9 @@ module "volumes" {
   }
   proxmox_api = var.proxmox
   volumes = {
-    pv-sonarr = {
-      node = "cantor"
-      size = "4G"
-    }
-    pv-radarr = {
-      node = "cantor"
-      size = "4G"
-    }
-    pv-lidarr = {
-      node = "cantor"
-      size = "4G"
-    }
-    pv-prowlarr = {
-      node = "euclid"
-      size = "1G"
-    }
-    pv-torrent = {
-      node = "euclid"
-      size = "1G"
-    }
-    pv-remark42 = {
-      node = "euclid"
-      size = "1G"
-    }
     pv-keycloak = {
       node = "euclid"
       size = "2G"
-    }
-    pv-jellyfin = {
-      node = "euclid"
-      size = "12G"
     }
     pv-netbird-signal = {
       node = "abel"
@@ -143,10 +131,6 @@ module "volumes" {
     pv-netbird-management = {
       node = "abel"
       size = "1G"
-    }
-    pv-plex = {
-      node = "abel"
-      size = "12G"
     }
     pv-prometheus = {
       node = "abel"
